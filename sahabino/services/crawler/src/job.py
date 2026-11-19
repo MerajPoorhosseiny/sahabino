@@ -43,22 +43,28 @@ class Crawler:
         except Exception:
             logger.exception("Failed to persist metrics for %s", package_name)
 
-        # try:
-        #     app_reviews = self.scraper.get_latest_reviews(package_name, count=TARGET_REVIEWS_COUNT)
-        #     if app_reviews:
-        #         upsert_reviews(app.id, app_reviews)
-        #         logger.info("Persisted %d reviews for %s", len(app_reviews), package_name)
-        # except Exception:
-        #     logger.exception("Failed to persist reviews for %s", package_name)
-        # TODO (DAY 2): Implement and enable Google Play review collection.
-        #
-        # For Day 1, the crawler only collects and stores app metrics.
-        # Review collection is temporarily disabled because
-        # PlayStoreScraper.get_latest_reviews() is not implemented yet.
-        #
-        # On Day 2, implement the review scraper and re-enable this
-        # section to fetch and upsert up to 1,000 recent reviews per app.
-        # Review failures should not interrupt metrics collection.
+        
+        # DAY 2: Fetch and store recent Google Play reviews.
+        # Review collection runs independently from metrics collection,
+        # so a review failure will not interrupt the crawler.
+
+        try:
+            app_reviews = self.scraper.get_latest_reviews(
+                package_name, count=TARGET_REVIEWS_COUNT
+            )
+            if app_reviews:
+                upsert_reviews(app.id, app_reviews)
+                logger.info(
+                    "Persisted %d reviews for %s",
+                    len(app_reviews),
+                    package_name,
+                )
+        except Exception:
+            logger.exception(
+                "Failed to persist reviews for %s",
+                package_name,
+            )
+
 
 def execute_crawl_job(crawler: Crawler) -> None:
     """Run one crawl cycle, logging instead of raising so the scheduler keeps scheduling."""

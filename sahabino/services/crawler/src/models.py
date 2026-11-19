@@ -5,9 +5,10 @@ from typing import Any, Optional
 from configs import FALLBACK_VERSION_LABEL
 
 
+
 @dataclass(frozen=True)
 class Review:
-    """One Play Store review, translated from the raw scraper payload into the reviews-table shape."""
+    """One Google Play review, ready to be stored in PostgreSQL."""
 
     review_id: str
     user_name: str | None
@@ -16,6 +17,46 @@ class Review:
     content: str
     review_at: str | None
     scraped_at: str
+
+    @classmethod
+    def from_scraped_payload(
+        cls, payload: dict[str, Any], scraped_at: str
+    ) -> "Review | None":
+        # A review without a unique ID cannot be safely stored or updated.
+        review_id = payload.get("reviewId")
+        if not review_id:
+            return None
+
+        # Google Play returns the review date as a datetime object.
+        review_date = payload.get("at")
+        review_at = None
+
+        if isinstance(review_date, datetime):
+            if review_date.tzinfo is None:
+                review_date = review_date.replace(tzinfo=UTC)
+            review_at = review_date.astimezone(UTC).isoformat()
+
+        return cls(
+            review_id=str(review_id),
+            user_name=payload.get("userName"),
+            score=payload.get("score"),
+            thumbs_up_count=int(payload.get("thumbsUpCount") or 0),
+            content=payload.get("content") or "",
+            review_at=review_at,
+            scraped_at=scraped_at,
+        )
+
+    def to_record(self) -> dict[str, Any]:
+        # Match the column names expected by the database layer.
+        return {
+            "review_id": self.review_id,
+            "user_name": self.user_name,
+            "score": self.score,
+            "thumbs_up_count": self.thumbs_up_count,
+            "content": self.content,
+            "review_at": self.review_at,
+            "scraped_at": self.scraped_at,
+        }
 
 
 
