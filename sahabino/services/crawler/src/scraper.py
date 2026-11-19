@@ -44,8 +44,46 @@ class PlayStoreScraper:
 
 
     def get_app_metrics(self, package_name: str) -> AppMetrics | None:
-        # TODO: DAY 1
-        pass
+        for attempt in range(self.max_retries):
+            try:
+                raw_data = self.fetch_app_details(
+                    package_name,
+                    lang="en",
+                    country="us",
+                )
+
+                scraped_at = datetime.now(UTC).isoformat()
+
+                metrics = AppMetrics.from_scraped_payload(
+                    raw_data, scraped_at
+                )
+
+                logger.info("Fetched app metrics for %s", package_name)
+                return metrics
+
+            except NotFoundError:
+                logger.warning(
+                    "App not found on Google Play: %s",
+                    package_name,
+                )
+                return None
+
+            except Exception:
+                logger.exception(
+                    "Failed fetching %s, attempt %d/%d",
+                    package_name,
+                    attempt + 1,
+                    self.max_retries,
+                )
+
+                if attempt < self.max_retries - 1:
+                    delay = min(
+                        self.base_backoff * (2 ** attempt),
+                        self.max_backoff,
+                    )
+                    time.sleep(delay + random.uniform(0, 0.5))
+
+        return None
 
     def get_latest_reviews(self, package_name: str, count: int = TARGET_REVIEWS_COUNT) -> list[dict[str, Any]]:
         # TODO: DAY 2

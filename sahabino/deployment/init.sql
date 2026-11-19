@@ -58,14 +58,19 @@ CREATE INDEX IF NOT EXISTS idx_reviews_app_review_at ON reviews (app_id, review_
 CREATE INDEX IF NOT EXISTS idx_reviews_app_score ON reviews (app_id, score);
 CREATE INDEX IF NOT EXISTS idx_network_app_scenario ON network_metrics(app_id, scenario);
 
+
+-- Seed the 16 applications required by the Sahabino project.
+-- Keep unavailable Google Play apps in the list for tracking.
+-- ON CONFLICT prevents duplicate package names during reseeding.
+
 INSERT INTO applications (title, package_name, category, is_active)
 VALUES
   ('Telegram', 'org.telegram.messenger', 'Messaging', TRUE),
   ('WhatsApp', 'com.whatsapp', 'Messaging', TRUE),
   ('Myirancell', 'com.myirancell', 'Operator', TRUE),
   ('Mymci', 'ir.mci.ecareapp', 'Operator', TRUE),
-  ('Namava', 'com.shatelland.namava.mobile', 'Video Streaming', TRUE),
-  ('Lenz', 'com.likotv', 'Video Streaming', TRUE),
+  ('Aparat', 'com.sabaidea.aparat', 'Video Streaming', TRUE),
+  ('Filimo', 'com.aparat.filimo', 'Video Streaming', TRUE),
   ('Tamashakhonehtv', 'ir.tamashakhonehtv', 'Video Streaming', TRUE),
   ('Fandogh', 'com.plus9.fandogh', 'Word Game', TRUE),
   ('Amirza', 'com.BrainLadder.AmirzaGP', 'Word Game', TRUE),
@@ -74,5 +79,6 @@ VALUES
   ('Pinno', 'app.pinno', 'Dating & Chat', TRUE),
   ('Instagram', 'com.instagram.android', 'Social Media', TRUE),
   ('Facebook', 'com.facebook.katana', 'Social Media', TRUE),
-  ('TikTok', 'com.zhiliaoapp.musically', 'Social Media', TRUE)
+  ('TikTok', 'com.zhiliaoapp.musically', 'Social Media', TRUE),
+  ('MyRightel', 'ir.rightel.myrightel', 'Operator', TRUE)
 ON CONFLICT (package_name) DO NOTHING;

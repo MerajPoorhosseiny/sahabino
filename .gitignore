@@ -1,0 +1,49 @@
+# Docker Compose environment values and local credentials
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+/secrets/
+/deployment/secrets/
+*.local.pem
+*.local.key
+
+# Python bytecode, virtual environments, and packaging
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.virtualenv/
+*.egg-info/
+/build/
+/dist/
+
+# Test, coverage, and tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+
+# Packet captures and runtime data
+/data/pcap/
+/data/generated/
+/data/exports/
+*.pcap
+*.pcapng
+*.pcap.gz
+*.pcapng.gz
+*.log
+
+# Local editor and OS files
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+# Local database backups and troubleshooting files
+applications_backup.sql
+metabase-error.txt
